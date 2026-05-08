@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark" data-lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kawihfy – Kawih Sunda Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #13131a;
+  --bg3: #1e1e2a;
+  --bg4: #252535;
+  --accent: #e8a225;
+  --accent2: #f0c060;
+  --accent3: #c47d0e;
+  --text: #f0ece0;
+  --text2: #a09880;
+  --text3: #6a6050;
+  --green: #4caf78;
+  --red: #e05555;
+  --sidebar-w: 240px;
+  --player-h: 88px;
+  --radius: 12px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+[data-theme="light"] {
+  --bg: #f7f3ec;
+  --bg2: #ede8df;
+  --bg3: #e2ddd3;
+  --bg4: #d5cfc4;
+  --text: #1a1510;
+  --text2: #5a5040;
+  --text3: #9a9080;
+  --shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+
+/* ── AUTH ─────────────────────────────────────────────── */
+#auth-screen{
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(135deg,#0a0a0f 0%,#1a1020 50%,#0d0d15 100%);
+  display:flex;align-items:center;justify-content:center;
+}
+.auth-card{
+  background:var(--bg2);border:1px solid rgba(232,162,37,0.2);
+  border-radius:24px;padding:48px 40px;width:min(420px,90vw);
+  box-shadow:0 32px 80px rgba(0,0,0,0.6);
+  animation:fadeUp .5s ease;
+}
+.auth-logo{text-align:center;margin-bottom:32px}
+.auth-logo h1{font-family:'Playfair Display',serif;font-size:2.4rem;color:var(--accent);letter-spacing:2px}
+.auth-logo p{color:var(--text2);font-size:.9rem;margin-top:4px}
+.auth-tabs{display:flex;gap:0;margin-bottom:28px;background:var(--bg3);border-radius:10px;padding:4px}
+.auth-tab{flex:1;padding:10px;text-align:center;border-radius:8px;cursor:pointer;font-weight:500;font-size:.9rem;color:var(--text2);transition:.2s}
+.auth-tab.active{background:var(--accent);color:#000}
+.auth-field{margin-bottom:16px}
+.auth-field label{display:block;font-size:.8rem;color:var(--text2);margin-bottom:6px;font-weight:500}
+.auth-field input{
+  width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--bg4);
+  border-radius:10px;color:var(--text);font-size:.95rem;outline:none;transition:.2s;
+  font-family:'DM Sans',sans-serif;
+}
+.auth-field input:focus{border-color:var(--accent)}
+.auth-btn{
+  width:100%;padding:14px;background:var(--accent);color:#000;border:none;
+  border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:.2s;margin-top:8px;
+}
+.auth-btn:hover{background:var(--accent2)}
+.auth-err{color:var(--red);font-size:.82rem;text-align:center;margin-top:8px;min-height:20px}
+.auth-hint{color:var(--text3);font-size:.78rem;text-align:center;margin-top:16px}
+
+/* ── LAYOUT ───────────────────────────────────────────── */
+#app{display:flex;height:calc(100vh - var(--player-h));display:none}
+#sidebar{
+  width:var(--sidebar-w);background:var(--bg2);border-right:1px solid var(--bg3);
+  display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:var(--bg4) transparent;
+}
+#main{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--bg4) transparent}
+#player-bar{
+  position:fixed;bottom:0;left:0;right:0;height:var(--player-h);
+  background:var(--bg2);border-top:1px solid var(--bg3);
+  display:none;align-items:center;padding:0 24px;gap:16px;z-index:100;
+}
+
+/* ── SIDEBAR ──────────────────────────────────────────── */
+.sidebar-logo{padding:24px 20px 12px;display:flex;align-items:center;gap:10px}
+.sidebar-logo h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--accent)}
+.sidebar-logo span{font-size:1.6rem}
+.nav-section{padding:8px 12px;margin-top:4px}
+.nav-label{font-size:.68rem;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;padding:0 8px;margin-bottom:6px}
+.nav-item{
+  display:flex;align-items:center;gap:12px;padding:10px 12px;
+  border-radius:10px;cursor:pointer;transition:.15s;font-size:.9rem;color:var(--text2);
+  font-weight:500;
+}
+.nav-item:hover,.nav-item.active{background:var(--bg3);color:var(--text)}
+.nav-item.active{color:var(--accent)}
+.nav-item i{width:18px;text-align:center;font-size:.95rem}
+.sidebar-divider{height:1px;background:var(--bg3);margin:8px 16px}
+.playlist-item{
+  display:flex;align-items:center;gap:10px;padding:8px 20px;
+  cursor:pointer;font-size:.84rem;color:var(--text2);transition:.15s;
+}
+.playlist-item:hover{color:var(--text)}
+.playlist-thumb{
+  width:36px;height:36px;border-radius:6px;object-fit:cover;
+  background:var(--bg4);flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;
+}
+.sidebar-bottom{margin-top:auto;padding:16px 12px;border-top:1px solid var(--bg3)}
+.user-info{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;cursor:pointer}
+.user-info:hover{background:var(--bg3)}
+.user-avatar{
+  width:32px;height:32px;border-radius:50%;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:#000;flex-shrink:0;
+}
+.user-name{font-size:.85rem;font-weight:600;flex:1}
+.user-email{font-size:.72rem;color:var(--text2)}
+
+/* ── MAIN CONTENT ─────────────────────────────────────── */
+.page{display:none;padding:28px;animation:fadeIn .3s ease}
+.page.active{display:block}
+.page-header{margin-bottom:28px}
+.page-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;margin-bottom:6px}
+.page-subtitle{color:var(--text2);font-size:.9rem}
+
+/* ── HERO ─────────────────────────────────────────────── */
+.hero-banner{
+  background:linear-gradient(135deg,var(--accent3) 0%,#8b4513 40%,var(--bg3) 100%);
+  border-radius:20px;padding:40px;margin-bottom:32px;position:relative;overflow:hidden;
+}
+.hero-banner::before{
+  content:'ᮼ';position:absolute;right:40px;top:50%;transform:translateY(-50%);
+  font-size:120px;opacity:.12;
+}
+.hero-banner h1{font-family:'Playfair Display',serif;font-size:2.4rem;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,0.3)}
+.hero-banner p{color:rgba(255,255,255,.8);max-width:500px;line-height:1.6}
+.hero-btns{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+.btn{
+  padding:11px 24px;border-radius:50px;font-weight:600;font-size:.9rem;
+  cursor:pointer;border:none;transition:.2s;font-family:'DM Sans',sans-serif;
+}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--text);border:1.5px solid rgba(255,255,255,.3)}
+.btn-outline:hover{background:rgba(255,255,255,.1)}
+
+/* ── GRID ─────────────────────────────────────────────── */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:1.2rem;font-weight:700}
+.see-all{color:var(--accent);font-size:.82rem;cursor:pointer;font-weight:600}
+.see-all:hover{text-decoration:underline}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:32px}
+.card{
+  background:var(--bg2);border-radius:var(--radius);padding:16px;
+  cursor:pointer;transition:.2s;position:relative;overflow:hidden;
+}
+.card:hover{background:var(--bg3);transform:translateY(-2px);box-shadow:var(--shadow)}
+.card-thumb{
+  width:100%;aspect-ratio:1;border-radius:8px;object-fit:cover;
+  background:var(--bg4);margin-bottom:12px;display:flex;align-items:center;
+  justify-content:center;font-size:2.5rem;position:relative;overflow:hidden;
+}
+.card-thumb img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.card-play-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.5);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;
+}
+.card:hover .card-play-overlay{opacity:1}
+.card-play-overlay i{font-size:2rem;color:var(--accent)}
+.card-title{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-sub{font-size:.78rem;color:var(--text2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── PLAYLIST VIEW ────────────────────────────────────── */
+.playlist-header{
+  background:linear-gradient(180deg,rgba(232,162,37,.3) 0%,var(--bg) 100%);
+  padding:40px 28px 20px;margin:-28px -28px 0;
+  display:flex;align-items:flex-end;gap:24px;
+}
+.playlist-cover{
+  width:200px;height:200px;border-radius:12px;background:var(--bg4);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:5rem;box-shadow:var(--shadow);
+}
+.playlist-info h1{font-family:'Playfair Display',serif;font-size:2.2rem;margin-bottom:8px}
+.playlist-info p{color:var(--text2);font-size:.9rem}
+.track-list{margin-top:24px}
+.track-head{
+  display:grid;grid-template-columns:40px 1fr 120px 60px;
+  padding:8px 16px;color:var(--text3);font-size:.8rem;font-weight:700;
+  letter-spacing:.5px;border-bottom:1px solid var(--bg3);margin-bottom:4px;
+}
+.track-row{
+  display:grid;grid-template-columns:40px 1fr 120px 60px;
+  padding:10px 16px;border-radius:8px;cursor:pointer;align-items:center;
+  transition:.15s;
+}
+.track-row:hover{background:var(--bg3)}
+.track-row.playing{color:var(--accent)}
+.track-num{font-size:.85rem;color:var(--text3);text-align:center}
+.track-info{display:flex;align-items:center;gap:12px}
+.track-img{width:40px;height:40px;border-radius:6px;background:var(--bg4);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;overflow:hidden}
+.track-img img{width:100%;height:100%;object-fit:cover}
+.track-name{font-size:.88rem;font-weight:500}
+.track-artist{font-size:.78rem;color:var(--text2)}
+.track-dur{font-size:.82rem;color:var(--text2);text-align:right}
+.track-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.track-like{background:none;border:none;cursor:pointer;color:var(--text3);font-size:.95rem;transition:.15s}
+.track-like:hover,.track-like.liked{color:var(--red)}
+
+/* ── SEARCH ───────────────────────────────────────────── */
+.search-bar{
+  display:flex;gap:12px;margin-bottom:28px;
+}
+.search-input-wrap{flex:1;position:relative}
+.search-input-wrap i{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text3)}
+.search-input{
+  width:100%;padding:14px 16px 14px 46px;background:var(--bg2);
+  border:1.5px solid var(--bg3);border-radius:50px;color:var(--text);
+  font-size:.95rem;outline:none;transition:.2s;font-family:'DM Sans',sans-serif;
+}
+.search-input:focus{border-color:var(--accent)}
+.genre-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.chip{
+  padding:7px 16px;border-radius:50px;background:var(--bg2);border:1.5px solid var(--bg3);
+  font-size:.82rem;cursor:pointer;transition:.15s;font-weight:500;
+}
+.chip:hover,.chip.active{background:var(--accent);border-color:var(--accent);color:#000}
+
+/* ── NEWS ─────────────────────────────────────────────── */
+.news-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.news-card{
+  background:var(--bg2);border-radius:var(--radius);overflow:hidden;cursor:pointer;
+  transition:.2s;border:1px solid var(--bg3);
+}
+.news-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.news-img{
+  height:160px;background:linear-gradient(135deg,var(--accent3),var(--bg3));
+  display:flex;align-items:center;justify-content:center;font-size:3rem;
+}
+.news-body{padding:16px}
+.news-tag{font-size:.72rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.news-title{font-size:.95rem;font-weight:700;line-height:1.4;margin-bottom:6px}
+.news-excerpt{font-size:.82rem;color:var(--text2);line-height:1.5}
+.news-date{font-size:.75rem;color:var(--text3);margin-top:10px}
+
+/* ── SETTINGS ─────────────────────────────────────────── */
+.settings-section{background:var(--bg2);border-radius:var(--radius);padding:24px;margin-bottom:16px;border:1px solid var(--bg3)}
+.settings-section h3{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bg3)}
+.settings-row:last-child{border-bottom:none;padding-bottom:0}
+.settings-label{font-size:.9rem}
+.settings-desc{font-size:.78rem;color:var(--text2);margin-top:2px}
+/* Toggle */
+.toggle{width:44px;height:24px;background:var(--bg4);border-radius:50px;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.toggle.on{background:var(--accent)}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.2s}
+.toggle.on::after{left:23px}
+/* Radio */
+.radio-group{display:flex;gap:8px}
+.radio-btn{
+  padding:8px 16px;border-radius:8px;background:var(--bg3);font-size:.85rem;
+  cursor:pointer;transition:.15s;font-weight:500;border:1.5px solid transparent;
+}
+.radio-btn.active{border-color:var(--accent);color:var(--accent)}
+
+/* ── ABOUT ────────────────────────────────────────────── */
+.about-hero{
+  background:linear-gradient(135deg,rgba(232,162,37,.15),rgba(139,69,19,.15));
+  border-radius:20px;padding:48px;text-align:center;margin-bottom:28px;
+  border:1px solid rgba(232,162,37,.2);
+}
+.about-hero h1{font-family:'Playfair Display',serif;font-size:3rem;color:var(--accent);margin-bottom:8px}
+.about-hero p{color:var(--text2);max-width:600px;margin:0 auto;line-height:1.7}
+.about-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.about-card{background:var(--bg2);border-radius:var(--radius);padding:24px;text-align:center;border:1px solid var(--bg3)}
+.about-card i{font-size:2rem;color:var(--accent);margin-bottom:12px}
+.about-card h4{font-weight:700;margin-bottom:6px}
+.about-card p{font-size:.83rem;color:var(--text2);line-height:1.5}
+
+/* ── PLAYER BAR ───────────────────────────────────────── */
+.player-left{display:flex;align-items:center;gap:12px;width:260px;flex-shrink:0;min-width:0}
+.now-thumb{
+  width:52px;height:52px;border-radius:8px;background:var(--bg3);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;overflow:hidden;
+}
+.now-thumb img{width:100%;height:100%;object-fit:cover}
+.now-info{min-width:0}
+.now-title{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now-artist{font-size:.78rem;color:var(--text2)}
+.player-like{background:none;border:none;cursor:pointer;color:var(--text3);font-size:1rem;transition:.15s;padding:4px}
+.player-like:hover,.player-like.liked{color:var(--red)}
+.player-center{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.player-controls{display:flex;align-items:center;gap:16px}
+.ctrl-btn{background:none;border:none;cursor:pointer;color:var(--text2);font-size:1rem;transition:.15s;padding:4px}
+.ctrl-btn:hover{color:var(--text)}
+.ctrl-btn.active{color:var(--accent)}
+.play-btn{
+  width:40px;height:40px;border-radius:50%;background:var(--text);
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:1rem;color:var(--bg);transition:.15s;
+}
+.play-btn:hover{background:var(--accent);transform:scale(1.05)}
+.progress-wrap{display:flex;align-items:center;gap:8px;width:100%}
+.prog-time{font-size:.72rem;color:var(--text2);flex-shrink:0;width:36px;text-align:center}
+.progress{flex:1;height:4px;background:var(--bg4);border-radius:50px;cursor:pointer;position:relative}
+.progress-fill{height:100%;background:var(--text);border-radius:50px;transition:width .5s linear;position:relative}
+.progress:hover .progress-fill{background:var(--accent)}
+.progress-thumb{
+  width:12px;height:12px;border-radius:50%;background:var(--text);
+  position:absolute;right:-6px;top:50%;transform:translateY(-50%);opacity:0;transition:.15s;
+}
+.progress:hover .progress-thumb{opacity:1}
+.player-right{display:flex;align-items:center;gap:8px;width:200px;justify-content:flex-end;flex-shrink:0}
+.vol-wrap{display:flex;align-items:center;gap:6px}
+.volume-bar{width:80px;height:4px;background:var(--bg4);border-radius:50px;cursor:pointer}
+.volume-fill{height:100%;background:var(--text2);border-radius:50px}
+
+/* ── YOUTUBE HIDDEN PLAYER ────────────────────────────── */
+#yt-container{position:fixed;bottom:88px;right:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
+
+/* ── MODALS ───────────────────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:.2s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--bg2);border-radius:20px;padding:32px;width:min(480px,90vw);
+  border:1px solid var(--bg3);transform:translateY(20px);transition:.2s;
+}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal h3{font-size:1.2rem;font-weight:700;margin-bottom:20px}
+.modal-close{float:right;background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem}
+
+/* ── TOAST ────────────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--bg3);color:var(--text);padding:12px 24px;border-radius:50px;
+  font-size:.88rem;font-weight:500;z-index:500;opacity:0;pointer-events:none;
+  transition:.3s;border:1px solid var(--bg4);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── ANIMATIONS ───────────────────────────────────────── */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin 1s linear infinite}
+
+/* ── SCROLLBAR ────────────────────────────────────────── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+
+/* ── RESPONSIVE ───────────────────────────────────────── */
+@media(max-width:700px){
+  :root{--sidebar-w:0px}
+  #sidebar{display:none}
+  .player-left{width:auto;flex:1}
+  .player-right{display:none}
+  .prog-time{display:none}
+  .playlist-header{flex-direction:column;align-items:center;text-align:center}
+  .playlist-cover{width:140px;height:140px}
+  .track-head,.track-row{grid-template-columns:32px 1fr 60px}
+  .track-head .col-dur,.track-row .track-dur{display:none}
+}
+.lyrics-modal .lyrics-body{
+  max-height:300px;overflow-y:auto;line-height:2;color:var(--text2);font-size:.95rem;
+  text-align:center;padding:0 8px;
+}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-state i{font-size:3rem;margin-bottom:16px;display:block;color:var(--bg4)}
+.empty-state p{font-size:.9rem}
+.loading{text-align:center;padding:40px;color:var(--text3)}
+.loading i{font-size:2rem;margin-bottom:8px;display:block}
+</style>
+</head>
+<body>
+
+<!-- ═══ AUTH SCREEN ═══ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <h1>🎵 Kawihfy</h1>
+      <p id="auth-tagline">Kawih Sunda, Rasa Nu Sajati</p>
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuth('login')" id="tab-login" data-id="tab-login">Asup / Masuk</div>
+      <div class="auth-tab" onclick="switchAuth('register')" id="tab-register" data-id="tab-register">Daftar</div>
+    </div>
+    <div id="login-form">
+      <div class="auth-field">
+        <label data-i="email">Email</label>
+        <input type="email" id="login-email" placeholder="email@anjeun.com">
+      </div>
+      <div class="auth-field">
+        <label data-i="password">Kecap Akses</label>
+        <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="auth-btn" onclick="doLogin()" data-i="login_btn">Asup →</button>
+    </div>
+    <div id="register-form" style="display:none">
+      <div class="auth-field">
+        <label data-i="name_label">Ngaran</label>
+        <input type="text" id="reg-name" placeholder="Ngaran anjeun">
+      </div>
+      <div class="auth-field">
+        <label data-i="email">Email</label>
+        <input type="email" id="reg-email" placeholder="email@anjeun.com">
+      </div>
+      <div class="auth-field">
+        <label data-i="password">Kecap Akses</label>
+        <input type="password" id="reg-pass" placeholder="Min. 6 karakter" onkeydown="if(event.key==='Enter')doRegister()">
+      </div>
+      <button class="auth-btn" onclick="doRegister()" data-i="register_btn">Daftar →</button>
+    </div>
+    <div class="auth-err" id="auth-err"></div>
+    <p class="auth-hint" data-i="auth_hint">Data disimpen di browser anjeun 🔒</p>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sidebar-logo">
+      <span>🎵</span>
+      <h2>Kawihfy</h2>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label" data-i="nav_main">Utama</div>
+      <div class="nav-item active" onclick="showPage('home')" id="nav-home">
+        <i class="fas fa-home"></i><span data-i="nav_home">Beranda</span>
+      </div>
+      <div class="nav-item" onclick="showPage('search')" id="nav-search">
+        <i class="fas fa-search"></i><span data-i="nav_search">Pados</span>
+      </div>
+      <div class="nav-item" onclick="showPage('news')" id="nav-news">
+        <i class="fas fa-newspaper"></i><span data-i="nav_news">Warta</span>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="nav-section">
+      <div class="nav-label" data-i="nav_library">Koleksi Abdi</div>
+      <div class="nav-item" onclick="showPage('liked')" id="nav-liked">
+        <i class="fas fa-heart"></i><span data-i="nav_liked">Dipikaresep</span>
+      </div>
+      <div class="nav-item" onclick="showPage('playlists')" id="nav-playlists">
+        <i class="fas fa-list-music"></i><span data-i="nav_playlists">Playlist</span>
+      </div>
+      <div class="nav-item" onclick="showPage('downloaded')" id="nav-dl">
+        <i class="fas fa-download"></i><span data-i="nav_dl">Diunduh</span>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="nav-section">
+      <div class="nav-label" data-i="nav_info">Info</div>
+      <div class="nav-item" onclick="showPage('about')" id="nav-about">
+        <i class="fas fa-info-circle"></i><span data-i="nav_about">Ngeunaan</span>
+      </div>
+      <div class="nav-item" onclick="showPage('settings')" id="nav-settings">
+        <i class="fas fa-cog"></i><span data-i="nav_settings">Setelan</span>
+      </div>
+    </div>
+    <!-- Playlists shortcuts -->
+    <div style="padding:8px 12px;flex:1">
+      <div class="nav-label" data-i="featured_playlist">Playlist Pilihan</div>
+      <div id="sidebar-playlists"></div>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="user-info" onclick="showPage('settings')">
+        <div class="user-avatar" id="avatar-letter">?</div>
+        <div>
+          <div class="user-name" id="user-display-name">Pangguna</div>
+          <div class="user-email" id="user-display-email"></div>
+        </div>
+        <i class="fas fa-ellipsis-h" style="color:var(--text3)"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="hero-banner">
+        <h1 id="hero-title">Selamat Datang di Kawihfy! 🎵</h1>
+        <p id="hero-sub">Rasakeun endahna musik Sunda — kawih, tembang, degung, jeung rumpaka anu ngageterkeun manah</p>
+        <div class="hero-btns">
+          <button class="btn btn-primary" onclick="playFeatured()" data-i="play_all">▶ Putar Semua</button>
+          <button class="btn btn-outline" onclick="showPage('search')" data-i="explore">Jelajahi</button>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <div class="section-title" data-i="feat_playlists">Playlist Unggulan Sunda</div>
+        <div class="see-all" onclick="showPage('playlists')" data-i="see_all">Lihat Semua</div>
+      </div>
+      <div class="cards-grid" id="home-playlists"></div>
+
+      <div class="section-head">
+        <div class="section-title" data-i="trending">Trending Sunda</div>
+        <div class="see-all" onclick="showPage('search')" data-i="see_all">Lihat Semua</div>
+      </div>
+      <div class="cards-grid" id="home-trending"></div>
+
+      <div class="section-head">
+        <div class="section-title" data-i="rec_artist">Seniman Pilihan</div>
+      </div>
+      <div class="cards-grid" id="home-artists"></div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="page" id="page-search">
+      <div class="page-header">
+        <div class="page-title" data-i="search_title">Pados</div>
+        <div class="page-subtitle" data-i="search_sub">Teangan lagu, seniman, atawa album</div>
+      </div>
+      <div class="search-bar">
+        <div class="search-input-wrap" style="flex:1">
+          <i class="fas fa-search"></i>
+          <input class="search-input" id="search-q" placeholder="Saha anu keur dipados?" onkeyup="liveSearch(this.value)">
+        </div>
+      </div>
+      <div class="genre-chips" id="genre-chips"></div>
+      <div id="search-results">
+        <div class="section-head"><div class="section-title" data-i="browse_cats">Jelajahi Kategori</div></div>
+        <div class="cards-grid" id="browse-cats"></div>
+      </div>
+    </div>
+
+    <!-- PLAYLIST/ALBUM VIEW -->
+    <div class="page" id="page-playlist">
+      <div class="playlist-header">
+        <div class="playlist-cover" id="pl-cover">🎵</div>
+        <div class="playlist-info">
+          <div style="font-size:.78rem;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:1px" id="pl-type">PLAYLIST</div>
+          <h1 id="pl-name">Nama Playlist</h1>
+          <p id="pl-desc">Deskripsi playlist</p>
+          <p style="margin-top:8px;font-size:.85rem;color:var(--text2)" id="pl-count">0 lagu</p>
+          <div class="hero-btns" style="margin-top:16px">
+            <button class="btn btn-primary" onclick="playPlaylist(currentPlaylist)" data-i="play_all">▶ Putar</button>
+            <button class="btn btn-outline" onclick="shufflePlaylist()" data-i="shuffle">⇄ Acak</button>
+          </div>
+        </div>
+      </div>
+      <div style="padding:0 28px 20px">
+        <div class="track-head">
+          <div>#</div><div data-i="col_title">Judul</div><div data-i="col_artist">Seniman</div><div>⏱</div>
+        </div>
+        <div class="track-list" id="playlist-tracks"></div>
+      </div>
+    </div>
+
+    <!-- LIKED -->
+    <div class="page" id="page-liked">
+      <div class="page-header">
+        <div class="page-title" data-i="liked_title">❤️ Dipikaresep</div>
+        <div class="page-subtitle" data-i="liked_sub">Lagu-lagu anu dipikaresep ku anjeun</div>
+      </div>
+      <div class="track-head">
+        <div>#</div><div data-i="col_title">Judul</div><div data-i="col_artist">Seniman</div><div>⏱</div>
+      </div>
+      <div id="liked-tracks"></div>
+    </div>
+
+    <!-- MY PLAYLISTS -->
+    <div class="page" id="page-playlists">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="page-title" data-i="playlists_title">Playlist Abdi</div>
+          <div class="page-subtitle" data-i="playlists_sub">Koleksi playlist anjeun</div>
+        </div>
+        <button class="btn btn-primary" onclick="openCreatePlaylist()" data-i="create_pl">+ Playlist Anyar</button>
+      </div>
+      <div class="cards-grid" id="my-playlists-grid"></div>
+    </div>
+
+    <!-- DOWNLOADED -->
+    <div class="page" id="page-downloaded">
+      <div class="page-header">
+        <div class="page-title" data-i="dl_title">⬇️ Mode Offline</div>
+        <div class="page-subtitle" data-i="dl_sub">Lagu anu disimpen pikeun diputar offline</div>
+      </div>
+      <div id="downloaded-list"></div>
+    </div>
+
+    <!-- NEWS -->
+    <div class="page" id="page-news">
+      <div class="page-header">
+        <div class="page-title" data-i="news_title">📰 Warta Musik Sunda</div>
+        <div class="page-subtitle" data-i="news_sub">Béja panganyarna ngeunaan musik jeung budaya Sunda</div>
+      </div>
+      <div class="news-grid" id="news-grid"></div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="page" id="page-about">
+      <div class="about-hero">
+        <h1>🎵 Kawihfy</h1>
+        <p data-i="about_desc">Kawihfy mangrupa platform musik digital anu dikhususkeun pikeun musik Sunda. Tujuanna nyaéta ngamumule jeung nyebarkeun kasenian Sunda ngaliwatan téknologi digital modéren, supaya budaya Sunda teras hirup jeung berkembang di era digital.</p>
+      </div>
+      <div class="about-cards">
+        <div class="about-card">
+          <i class="fas fa-music"></i>
+          <h4 data-i="about_f1">Musik Asli Sunda</h4>
+          <p data-i="about_f1d">Kawih, tembang, degung, jaipong, kliningan, jeung seni sunda séjénna</p>
+        </div>
+        <div class="about-card">
+          <i class="fas fa-download"></i>
+          <h4 data-i="about_f2">Mode Offline</h4>
+          <p data-i="about_f2d">Simpen lagu pikeun didangukeun tanpa koneksi internét</p>
+        </div>
+        <div class="about-card">
+          <i class="fas fa-globe"></i>
+          <h4 data-i="about_f3">2 Bahasa</h4>
+          <p data-i="about_f3d">Dukungan basa Sunda sareng basa Indonesia</p>
+        </div>
+        <div class="about-card">
+          <i class="fas fa-heart"></i>
+          <h4 data-i="about_f4">Gratis Salamina</h4>
+          <p data-i="about_f4d">Kawihfy gratis pikeun sakumna pangguna</p>
+        </div>
+        <div class="about-card">
+          <i class="fas fa-newspaper"></i>
+          <h4 data-i="about_f5">Warta Sunda</h4>
+          <p data-i="about_f5d">Béja jeung informasi musik budaya Sunda panganyarna</p>
+        </div>
+        <div class="about-card">
+          <i class="fas fa-moon"></i>
+          <h4 data-i="about_f6">Tema Gelap/Caang</h4>
+          <p data-i="about_f6d">Pilih tema anu nyaman pikeun panon anjeun</p>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:40px;color:var(--text3);font-size:.85rem">
+        <p>Kawihfy v1.0 · Made with ❤️ pikeun urang Sunda</p>
+        <p style="margin-top:4px">© 2025 Kawihfy · Sadaya hak dilindungi</p>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <div class="page-title" data-i="settings_title">⚙️ Setelan</div>
+      </div>
+
+      <div class="settings-section">
+        <h3><i class="fas fa-palette" style="color:var(--accent)"></i> <span data-i="theme_section">Tema</span></h3>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label" data-i="theme_label">Tema Tampilan</div>
+            <div class="settings-desc" data-i="theme_desc">Pilih antara gelap atawa caang</div>
+          </div>
+          <div class="radio-group">
+            <div class="radio-btn active" id="theme-dark" onclick="setTheme('dark')" data-i="theme_dark">🌙 Peuting</div>
+            <div class="radio-btn" id="theme-light" onclick="setTheme('light')" data-i="theme_light">☀️ Beurang</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3><i class="fas fa-language" style="color:var(--accent)"></i> <span data-i="lang_section">Basa</span></h3>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label" data-i="lang_label">Pilih Basa</div>
+            <div class="settings-desc" data-i="lang_desc">Basa anu dipaké dina aplikasi</div>
+          </div>
+          <div class="radio-group">
+            <div class="radio-btn active" id="lang-su" onclick="setLang('su')" data-i="lang_su">🔵 Sunda</div>
+            <div class="radio-btn" id="lang-id" onclick="setLang('id')" data-i="lang_id">🔴 Indonesia</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3><i class="fas fa-user" style="color:var(--accent)"></i> <span data-i="account_section">Akun</span></h3>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label" id="s-username">Pangguna</div>
+            <div class="settings-desc" id="s-email">email</div>
+          </div>
+          <button class="btn btn-outline" onclick="logout()" data-i="logout">Kaluar</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3><i class="fas fa-download" style="color:var(--accent)"></i> <span data-i="dl_section">Unduhan</span></h3>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label" data-i="dl_size">Ukuran Cache</div>
+            <div class="settings-desc" id="dl-size-val">0 lagu disimpen</div>
+          </div>
+          <button class="btn btn-outline" onclick="clearDownloads()" data-i="clear_dl">Hapus</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- PLAYER BAR -->
+<div id="player-bar">
+  <div class="player-left">
+    <div class="now-thumb" id="player-thumb">🎵</div>
+    <div class="now-info">
+      <div class="now-title" id="player-title" data-i="not_playing">Teu aya lagu</div>
+      <div class="now-artist" id="player-artist"></div>
+    </div>
+    <button class="player-like" id="like-btn" onclick="toggleLikeCurrent()"><i class="far fa-heart"></i></button>
+  </div>
+  <div class="player-center">
+    <div class="player-controls">
+      <button class="ctrl-btn" id="btn-shuffle" onclick="toggleShuffle()" title="Shuffle"><i class="fas fa-random"></i></button>
+      <button class="ctrl-btn" onclick="prevTrack()" title="Prev"><i class="fas fa-step-backward"></i></button>
+      <button class="play-btn" id="main-play-btn" onclick="togglePlay()"><i class="fas fa-play"></i></button>
+      <button class="ctrl-btn" onclick="nextTrack()" title="Next"><i class="fas fa-step-forward"></i></button>
+      <button class="ctrl-btn" id="btn-repeat" onclick="toggleRepeat()" title="Repeat"><i class="fas fa-redo"></i></button>
+    </div>
+    <div class="progress-wrap">
+      <span class="prog-time" id="time-cur">0:00</span>
+      <div class="progress" id="progress-bar" onclick="seekTo(event)">
+        <div class="progress-fill" id="progress-fill" style="width:0%">
+          <div class="progress-thumb"></div>
+        </div>
+      </div>
+      <span class="prog-time" id="time-total">0:00</span>
+    </div>
+  </div>
+  <div class="player-right">
+    <button class="ctrl-btn" onclick="openDownloadModal()" title="Download"><i class="fas fa-download"></i></button>
+    <button class="ctrl-btn" onclick="openLyrics()" title="Lirik"><i class="fas fa-microphone-alt"></i></button>
+    <div class="vol-wrap">
+      <button class="ctrl-btn" onclick="toggleMute()" id="vol-icon"><i class="fas fa-volume-up"></i></button>
+      <div class="volume-bar" onclick="setVolume(event)">
+        <div class="volume-fill" id="vol-fill" style="width:80%"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HIDDEN YT PLAYER -->
+<div id="yt-container">
+  <div id="yt-player"></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- DOWNLOAD MODAL -->
+<div class="modal-overlay" id="dl-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('dl-modal')">✕</button>
+    <h3 data-i="dl_modal_title">⬇️ Unduh Lagu</h3>
+    <p style="color:var(--text2);font-size:.88rem;margin-bottom:20px" data-i="dl_modal_desc">Pilih pilihan unduhan kanggo lagu anu keur diputer:</p>
+    <div id="dl-song-info" style="background:var(--bg3);border-radius:10px;padding:16px;margin-bottom:20px;font-size:.9rem"></div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-primary" onclick="downloadYT()" data-i="dl_via_yt">📥 Unduh via YT Converter</button>
+      <button class="btn btn-outline" onclick="saveOffline()" data-i="save_offline">💾 Simpen pikeun Offline</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE PLAYLIST MODAL -->
+<div class="modal-overlay" id="create-pl-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('create-pl-modal')">✕</button>
+    <h3 data-i="create_pl_title">🎵 Playlist Anyar</h3>
+    <div class="auth-field" style="margin-top:16px">
+      <label data-i="pl_name_label">Ngaran Playlist</label>
+      <input type="text" id="pl-name-input" style="width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--bg4);border-radius:10px;color:var(--text);font-size:.95rem;outline:none;font-family:'DM Sans',sans-serif" placeholder="e.g. Kawih Abdi">
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="createPlaylist()" data-i="create_pl_btn">Jieun Playlist</button>
+  </div>
+</div>
+
+<!-- LYRICS MODAL -->
+<div class="modal-overlay lyrics-modal" id="lyrics-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('lyrics-modal')">✕</button>
+    <h3 id="lyrics-title">Lirik</h3>
+    <div class="lyrics-body" id="lyrics-body" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA – Sundanese Music Database (YouTube IDs)
+// ═══════════════════════════════════════════════════════════
+const DB = {
+  playlists: [
+    {
+      id:'pl_kawih', name:'Kawih Sunda Klasik', type:'playlist',
+      desc:'Kumpulan kawih Sunda anu teu leungit ku jaman',
+      cover:'🎶', color:'#e8a225',
+      tracks:['t1','t2','t3','t4','t5','t6']
+    },
+    {
+      id:'pl_degung', name:'Degung Pasundan', type:'playlist',
+      desc:'Musik degung anu merdu jeung ngageterkeun',
+      cover:'🎺', color:'#4caf78',
+      tracks:['t7','t8','t9','t10']
+    },
+    {
+      id:'pl_jaipong', name:'Jaipong Modern', type:'playlist',
+      desc:'Jaipong kontémporér karya seniman Sunda',
+      cover:'💃', color:'#e05555',
+      tracks:['t11','t12','t13','t14']
+    },
+    {
+      id:'pl_pop_sunda', name:'Pop Sunda Hits', type:'playlist',
+      desc:'Lagu pop Sunda anu populér',
+      cover:'🌟', color:'#9c27b0',
+      tracks:['t15','t16','t17','t18','t19']
+    },
+    {
+      id:'pl_tembang', name:'Tembang Cianjuran', type:'playlist',
+      desc:'Tembang cianjuran anu agung jeung luhur',
+      cover:'🎼', color:'#2196f3',
+      tracks:['t20','t21','t22']
+    },
+    {
+      id:'pl_religi', name:'Sholawat & Beluk Sunda', type:'playlist',
+      desc:'Sholawat jeung beluk seni budaya Islam Sunda',
+      cover:'🕌', color:'#009688',
+      tracks:['t1','t3','t5']
+    }
+  ],
+
+  tracks: {
+    t1: { id:'t1', title:'Mojang Priangan', artist:'Nining Meida', ytId:'PG7Y7IExJiE', dur:'4:23', genre:'kawih', thumb:'https://i.ytimg.com/vi/PG7Y7IExJiE/hqdefault.jpg' },
+    t2: { id:'t2', title:'Es Lilin', artist:'Tati Saleh', ytId:'2bNQNFT5FWA', dur:'3:45', genre:'kawih', thumb:'https://i.ytimg.com/vi/2bNQNFT5FWA/hqdefault.jpg' },
+    t3: { id:'t3', title:'Manuk Dadali', artist:'Imas Permas', ytId:'NLQoD3EF_X8', dur:'4:01', genre:'kawih', thumb:'https://i.ytimg.com/vi/NLQoD3EF_X8/hqdefault.jpg' },
+    t4: { id:'t4', title:'Bubuy Bulan', artist:'Nining Meida', ytId:'7J3NlDnxFqQ', dur:'3:55', genre:'kawih', thumb:'https://i.ytimg.com/vi/7J3NlDnxFqQ/hqdefault.jpg' },
+    t5: { id:'t5', title:'Tokecang', artist:'Sundanese Folk', ytId:'vdB-8hor0vk', dur:'3:20', genre:'kawih', thumb:'https://i.ytimg.com/vi/vdB-8hor0vk/hqdefault.jpg' },
+    t6: { id:'t6', title:'Cingcangkeling', artist:'Yayan Jatnika', ytId:'0Xa4TNhsLec', dur:'4:10', genre:'kawih', thumb:'https://i.ytimg.com/vi/0Xa4TNhsLec/hqdefault.jpg' },
+    t7: { id:'t7', title:'Degung Klasik Sunda', artist:'Mang Koko', ytId:'bU4lbFJHtIY', dur:'8:12', genre:'degung', thumb:'https://i.ytimg.com/vi/bU4lbFJHtIY/hqdefault.jpg' },
+    t8: { id:'t8', title:'Kembang Tanjung Panineungan', artist:'Nining Meida', ytId:'AE8HwqFOBw8', dur:'5:33', genre:'degung', thumb:'https://i.ytimg.com/vi/AE8HwqFOBw8/hqdefault.jpg' },
+    t9: { id:'t9', title:'Degung Kahyangan', artist:'Endang Sukandar', ytId:'RNlj_RpqYMY', dur:'6:45', genre:'degung', thumb:'https://i.ytimg.com/vi/RNlj_RpqYMY/hqdefault.jpg' },
+    t10: { id:'t10', title:'Pataléan', artist:'Ensemble Degung', ytId:'5UdUFJG-SfE', dur:'7:02', genre:'degung', thumb:'https://i.ytimg.com/vi/5UdUFJG-SfE/hqdefault.jpg' },
+    t11: { id:'t11', title:'Tari Jaipong Karawang', artist:'Gugum Gumbira', ytId:'qMnRMm1sM6A', dur:'6:20', genre:'jaipong', thumb:'https://i.ytimg.com/vi/qMnRMm1sM6A/hqdefault.jpg' },
+    t12: { id:'t12', title:'Daun Pulus Keser Bojong', artist:'Jugala', ytId:'x_R2bxF4OlA', dur:'8:45', genre:'jaipong', thumb:'https://i.ytimg.com/vi/x_R2bxF4OlA/hqdefault.jpg' },
+    t13: { id:'t13', title:'Kawung Anten', artist:'Tati Saleh', ytId:'uT3SyBNR0Ds', dur:'5:58', genre:'jaipong', thumb:'https://i.ytimg.com/vi/uT3SyBNR0Ds/hqdefault.jpg' },
+    t14: { id:'t14', title:'Iring-iringan Jaipong', artist:'Group Jugala', ytId:'d7Rlk7bXiVE', dur:'7:30', genre:'jaipong', thumb:'https://i.ytimg.com/vi/d7Rlk7bXiVE/hqdefault.jpg' },
+    t15: { id:'t15', title:'Jadi Kembang Buruan', artist:'Doel Sumbang', ytId:'H1jyvHcuV0c', dur:'4:52', genre:'pop_sunda', thumb:'https://i.ytimg.com/vi/H1jyvHcuV0c/hqdefault.jpg' },
+    t16: { id:'t16', title:'Kalangkang', artist:'Darso', ytId:'Z4QApDv6LnI', dur:'5:10', genre:'pop_sunda', thumb:'https://i.ytimg.com/vi/Z4QApDv6LnI/hqdefault.jpg' },
+    t17: { id:'t17', title:'Sulanjana', artist:'Darso', ytId:'nV2QJRxJ8qE', dur:'4:35', genre:'pop_sunda', thumb:'https://i.ytimg.com/vi/nV2QJRxJ8qE/hqdefault.jpg' },
+    t18: { id:'t18', title:'Sabilulungan', artist:'Mang Koko', ytId:'X1piE5b90xk', dur:'3:48', genre:'pop_sunda', thumb:'https://i.ytimg.com/vi/X1piE5b90xk/hqdefault.jpg' },
+    t19: { id:'t19', title:'Warung Pojok', artist:'Doel Sumbang', ytId:'0KVMibBB6q4', dur:'4:18', genre:'pop_sunda', thumb:'https://i.ytimg.com/vi/0KVMibBB6q4/hqdefault.jpg' },
+    t20: { id:'t20', title:'Asih', artist:'Ensemble Cianjuran', ytId:'LKuoVt2ZPNE', dur:'9:20', genre:'tembang', thumb:'https://i.ytimg.com/vi/LKuoVt2ZPNE/hqdefault.jpg' },
+    t21: { id:'t21', title:'Panineungan', artist:'Nining Meida', ytId:'kHnJa8-kGeo', dur:'8:05', genre:'tembang', thumb:'https://i.ytimg.com/vi/kHnJa8-kGeo/hqdefault.jpg' },
+    t22: { id:'t22', title:'Mawar Bodas', artist:'Mang Koko', ytId:'8g3K5t0LROs', dur:'5:42', genre:'tembang', thumb:'https://i.ytimg.com/vi/8g3K5t0LROs/hqdefault.jpg' },
+  },
+
+  artists: [
+    {id:'ar1',name:'Nining Meida',genre:'Kawih Sunda',tracks:['t1','t4','t8','t21'],thumb:'🎤'},
+    {id:'ar2',name:'Darso',genre:'Pop Sunda',tracks:['t16','t17'],thumb:'🎸'},
+    {id:'ar3',name:'Mang Koko',genre:'Degung & Kawih',tracks:['t7','t18','t22'],thumb:'🎺'},
+    {id:'ar4',name:'Doel Sumbang',genre:'Pop Sunda',tracks:['t15','t19'],thumb:'🎵'},
+    {id:'ar5',name:'Gugum Gumbira',genre:'Jaipong',tracks:['t11'],thumb:'💃'},
+    {id:'ar6',name:'Tati Saleh',genre:'Kawih & Jaipong',tracks:['t2','t13'],thumb:'🌸'},
+  ],
+
+  categories: [
+    {id:'kawih',name:'Kawih',emoji:'🎶',color:'#e8a225'},
+    {id:'degung',name:'Degung',emoji:'🎺',color:'#4caf78'},
+    {id:'jaipong',name:'Jaipong',emoji:'💃',color:'#e05555'},
+    {id:'pop_sunda',name:'Pop Sunda',emoji:'🌟',color:'#9c27b0'},
+    {id:'tembang',name:'Tembang',emoji:'🎼',color:'#2196f3'},
+    {id:'kliningan',name:'Kliningan',emoji:'🥁',color:'#ff9800'},
+    {id:'calung',name:'Calung',emoji:'🪗',color:'#009688'},
+    {id:'kecapi',name:'Kecapi Suling',emoji:'🎸',color:'#e91e63'},
+  ],
+
+  news: [
+    {id:'n1',title:'Festival Kawih Sunda 2025 Digelar di Bandung',tag:'Festival',emoji:'🎉',date:'12 April 2025',excerpt:'Festival kawih sunda tahunan bakal digelar dina bulan Mei 2025 di Gedung Sate Bandung, ngahadirkeun ratusan seniman Sunda ti sakuliah Jawa Barat.'},
+    {id:'n2',title:'Mang Koko: Legénda Musik Sunda anu Teu Leungit',tag:'Biografi',emoji:'🎵',date:'8 April 2025',excerpt:'Karya-karya Mang Koko tetep hirup jeung diteruskeun ku generasi muda Sunda. Inget deui kana kontribusina pikeun musik Sunda modéren.'},
+    {id:'n3',title:'Generasi Z Mulai Minat Kana Jaipong',tag:'Tren',emoji:'💃',date:'5 April 2025',excerpt:'Data terbaru nunjukkeun yén generasi muda Sunda beuki minat kana seni jaipong, hususna sanggeus viral di média sosial TikTok.'},
+    {id:'n4',title:'Album Baru Darso Bakal Diluncurkan',tag:'Album Anyar',emoji:'🎸',date:'1 April 2025',excerpt:'Penyanyi legendaris Darso bakal ngeluarkeun album pop Sunda barudak anu dijudulan "Sunda Kiwari" bulan ieu.'},
+    {id:'n5',title:'Kacapi Suling Masuk Warisan Budaya UNESCO',tag:'Warisan Budaya',emoji:'🏆',date:'28 Maret 2025',excerpt:'Instrumen tradisional Sunda kacapi suling resmi diakui ku UNESCO salaku warisan budaya takbenda dunya.'},
+    {id:'n6',title:'Workshop Degung Gratis di Rumah Budaya Sunda',tag:'Workshop',emoji:'🎺',date:'25 Maret 2025',excerpt:'Rumah Budaya Sunda Bandung buka pendaftaran workshop degung gratis pikeun pelajar jeung mahasiswa Jawa Barat.'},
+  ]
+};
+
+// ═══════════════════════════════════════════════════════════
+// I18N
+// ═══════════════════════════════════════════════════════════
+const i18n = {
+  su: {
+    tab_login:'Asup',tab_register:'Daftar',
+    email:'Surélék',password:'Kecap Akses',name_label:'Ngaran',
+    login_btn:'Asup →',register_btn:'Daftar →',
+    auth_hint:'Data disimpen di browser anjeun 🔒',
+    nav_main:'UTAMA',nav_home:'Imah',nav_search:'Pados',nav_news:'Warta',
+    nav_library:'KOLEKSI ABDI',nav_liked:'Dipikaresep',nav_playlists:'Playlist',nav_dl:'Diunduh',
+    nav_info:'INPO',nav_about:'Ngeunaan',nav_settings:'Setelan',
+    featured_playlist:'Playlist Pilihan',
+    hero_greet:'Wilujeng Sumping di Kawihfy! 🎵',
+    play_all:'▶ Putar Sadayana',explore:'Jelajahi',
+    feat_playlists:'Playlist Unggulan Sunda',trending:'Trending Sunda',
+    rec_artist:'Seniman Pilihan',see_all:'Tempo Sadayana',
+    search_title:'Pados',search_sub:'Teangan lagu, seniman, atawa album',
+    browse_cats:'Jelajahi Kategori',
+    col_title:'Judul',col_artist:'Seniman',
+    liked_title:'❤️ Dipikaresep',liked_sub:'Lagu-lagu anu dipikaresep ku anjeun',
+    playlists_title:'Playlist Abdi',playlists_sub:'Koleksi playlist anjeun',
+    create_pl:'+ Playlist Anyar',
+    dl_title:'⬇️ Mode Offline',dl_sub:'Lagu anu disimpen pikeun diputer offline',
+    news_title:'📰 Warta Musik Sunda',news_sub:'Béja panganyarna ngeunaan musik jeung budaya Sunda',
+    settings_title:'⚙️ Setelan',
+    theme_section:'Téma',theme_label:'Téma Tampilan',theme_desc:'Pilih antara gelap atawa caang',
+    theme_dark:'🌙 Peuting',theme_light:'☀️ Beurang',
+    lang_section:'Basa',lang_label:'Pilih Basa',lang_desc:'Basa anu dipaké dina aplikasi',
+    lang_su:'🔵 Sunda',lang_id:'🔴 Indonesia',
+    account_section:'Akun',logout:'Kaluar',
+    dl_section:'Unduhan',dl_size:'Ukuran Cache',clear_dl:'Hapus',
+    about_desc:'Kawihfy mangrupa platform musik digital anu dikhususkeun pikeun musik Sunda. Tujuanna nyaéta ngamumule jeung nyebarkeun kasenian Sunda ngaliwatan téknologi digital modéren.',
+    about_f1:'Musik Asli Sunda',about_f1d:'Kawih, tembang, degung, jaipong, kliningan, jeung seni sunda séjénna',
+    about_f2:'Mode Offline',about_f2d:'Simpen lagu pikeun didangukeun tanpa koneksi internét',
+    about_f3:'2 Basa',about_f3d:'Dukungan basa Sunda sareng basa Indonesia',
+    about_f4:'Gratis Salamina',about_f4d:'Kawihfy gratis pikeun sakumna pangguna',
+    about_f5:'Warta Sunda',about_f5d:'Béja jeung informasi musik budaya Sunda panganyarna',
+    about_f6:'Téma Gelap/Caang',about_f6d:'Pilih téma anu nyaman pikeun panon anjeun',
+    not_playing:'Teu aya lagu',shuffle:'⇄ Acak',
+    dl_modal_title:'⬇️ Unduh Lagu',dl_modal_desc:'Pilih pilihan unduhan kanggo lagu anu keur diputer:',
+    dl_via_yt:'📥 Unduh via YT Converter',save_offline:'💾 Simpen pikeun Offline',
+    create_pl_title:'🎵 Playlist Anyar',pl_name_label:'Ngaran Playlist',create_pl_btn:'Jieun Playlist',
+    toast_liked:'Ditambahkeun ka anu dipikaresep ❤️',toast_unliked:'Dicabut ti anu dipikaresep',
+    toast_saved:'Disimpen offline ✅',toast_dl_clear:'Unduhan dihapus',
+    toast_pl_created:'Playlist dijieun!',
+  },
+  id: {
+    tab_login:'Masuk',tab_register:'Daftar',
+    email:'Email',password:'Kata Sandi',name_label:'Nama',
+    login_btn:'Masuk →',register_btn:'Daftar →',
+    auth_hint:'Data disimpan di browser kamu 🔒',
+    nav_main:'UTAMA',nav_home:'Beranda',nav_search:'Cari',nav_news:'Berita',
+    nav_library:'KOLEKSI SAYA',nav_liked:'Disukai',nav_playlists:'Playlist',nav_dl:'Diunduh',
+    nav_info:'INFO',nav_about:'Tentang',nav_settings:'Pengaturan',
+    featured_playlist:'Playlist Pilihan',
+    hero_greet:'Selamat Datang di Kawihfy! 🎵',
+    play_all:'▶ Putar Semua',explore:'Jelajahi',
+    feat_playlists:'Playlist Unggulan Sunda',trending:'Trending Sunda',
+    rec_artist:'Seniman Pilihan',see_all:'Lihat Semua',
+    search_title:'Cari',search_sub:'Cari lagu, artis, atau album',
+    browse_cats:'Jelajahi Kategori',
+    col_title:'Judul',col_artist:'Artis',
+    liked_title:'❤️ Disukai',liked_sub:'Lagu-lagu yang kamu sukai',
+    playlists_title:'Playlist Saya',playlists_sub:'Koleksi playlist kamu',
+    create_pl:'+ Playlist Baru',
+    dl_title:'⬇️ Mode Offline',dl_sub:'Lagu yang disimpan untuk diputar offline',
+    news_title:'📰 Berita Musik Sunda',news_sub:'Berita terkini tentang musik dan budaya Sunda',
+    settings_title:'⚙️ Pengaturan',
+    theme_section:'Tema',theme_label:'Tema Tampilan',theme_desc:'Pilih antara gelap atau terang',
+    theme_dark:'🌙 Gelap',theme_light:'☀️ Terang',
+    lang_section:'Bahasa',lang_label:'Pilih Bahasa',lang_desc:'Bahasa yang digunakan di aplikasi',
+    lang_su:'🔵 Sunda',lang_id:'🔴 Indonesia',
+    account_section:'Akun',logout:'Keluar',
+    dl_section:'Unduhan',dl_size:'Ukuran Cache',clear_dl:'Hapus',
+    about_desc:'Kawihfy adalah platform musik digital yang dikhususkan untuk musik Sunda. Tujuannya adalah melestarikan dan menyebarkan kesenian Sunda melalui teknologi digital modern.',
+    about_f1:'Musik Asli Sunda',about_f1d:'Kawih, tembang, degung, jaipong, kliningan, dan seni sunda lainnya',
+    about_f2:'Mode Offline',about_f2d:'Simpan lagu untuk didengarkan tanpa koneksi internet',
+    about_f3:'2 Bahasa',about_f3d:'Dukungan bahasa Sunda dan bahasa Indonesia',
+    about_f4:'Gratis Selamanya',about_f4d:'Kawihfy gratis untuk semua pengguna',
+    about_f5:'Berita Sunda',about_f5d:'Berita dan informasi musik budaya Sunda terkini',
+    about_f6:'Tema Gelap/Terang',about_f6d:'Pilih tema yang nyaman untuk mata kamu',
+    not_playing:'Tidak ada lagu',shuffle:'⇄ Acak',
+    dl_modal_title:'⬇️ Unduh Lagu',dl_modal_desc:'Pilih opsi unduhan untuk lagu yang sedang diputar:',
+    dl_via_yt:'📥 Unduh via YT Converter',save_offline:'💾 Simpan untuk Offline',
+    create_pl_title:'🎵 Playlist Baru',pl_name_label:'Nama Playlist',create_pl_btn:'Buat Playlist',
+    toast_liked:'Ditambahkan ke yang disukai ❤️',toast_unliked:'Dihapus dari yang disukai',
+    toast_saved:'Disimpan offline ✅',toast_dl_clear:'Unduhan dihapus',
+    toast_pl_created:'Playlist dibuat!',
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════════════════
+let state = {
+  user: null,
+  lang: 'su',
+  theme: 'dark',
+  currentTrack: null,
+  currentQueue: [],
+  queueIndex: 0,
+  isPlaying: false,
+  shuffle: false,
+  repeat: false,
+  muted: false,
+  volume: 80,
+  likedTracks: [],
+  downloads: [],
+  userPlaylists: [],
+  progress: 0,
+  duration: 0,
+};
+
+let ytPlayer = null;
+let ytReady = false;
+let progressInterval = null;
+let currentPlaylist = null;
+
+// ═══════════════════════════════════════════════════════════
+// PERSISTENCE
+// ═══════════════════════════════════════════════════════════
+function saveState() {
+  localStorage.setItem('kw_state', JSON.stringify({
+    lang: state.lang, theme: state.theme,
+    likedTracks: state.likedTracks,
+    downloads: state.downloads,
+    userPlaylists: state.userPlaylists,
+    volume: state.volume,
+  }));
+}
+
+function loadState() {
+  const s = localStorage.getItem('kw_state');
+  if (s) {
+    const d = JSON.parse(s);
+    Object.assign(state, d);
+  }
+}
+
+// Users stored in localStorage
+function getUsers() { return JSON.parse(localStorage.getItem('kw_users')||'[]'); }
+function saveUsers(u) { localStorage.setItem('kw_users', JSON.stringify(u)); }
+
+// ═══════════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════════
+function switchAuth(tab) {
+  document.getElementById('login-form').style.display = tab==='login'?'':'none';
+  document.getElementById('register-form').style.display = tab==='register'?'':'none';
+  document.getElementById('tab-login').classList.toggle('active',tab==='login');
+  document.getElementById('tab-register').classList.toggle('active',tab==='register');
+  document.getElementById('auth-err').textContent='';
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if(!email||!pass){showAuthErr('Eusi sadaya kolom!');return;}
+  const users = getUsers();
+  const user = users.find(u=>u.email===email && u.pass===btoa(pass));
+  if(!user){showAuthErr('Email atawa sandi salah!');return;}
+  state.user = user;
+  localStorage.setItem('kw_session', JSON.stringify(user));
+  enterApp();
+}
+
+function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  if(!name||!email||!pass){showAuthErr('Eusi sadaya kolom!');return;}
+  if(pass.length<6){showAuthErr('Sandi min. 6 karakter!');return;}
+  const users = getUsers();
+  if(users.find(u=>u.email===email)){showAuthErr('Email geus dipaké!');return;}
+  const user = {name, email, pass:btoa(pass), id:'u'+Date.now()};
+  users.push(user);
+  saveUsers(users);
+  state.user = user;
+  localStorage.setItem('kw_session', JSON.stringify(user));
+  enterApp();
+}
+
+function showAuthErr(msg) { document.getElementById('auth-err').textContent = msg; }
+
+function logout() {
+  saveState();
+  localStorage.removeItem('kw_session');
+  state.user = null;
+  if(ytPlayer) ytPlayer.pauseVideo();
+  document.getElementById('app').style.display='none';
+  document.getElementById('player-bar').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+}
+
+function enterApp() {
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('player-bar').style.display='flex';
+  initApp();
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function initApp() {
+  applyTheme(state.theme);
+  applyLang(state.lang);
+  updateUserUI();
+  renderSidebar();
+  renderHome();
+  renderSearch();
+  renderNews();
+  renderSettings();
+  updateDlSize();
+  loadYTApi();
+}
+
+function updateUserUI() {
+  const u = state.user;
+  if(!u) return;
+  const l = u.name.charAt(0).toUpperCase();
+  document.getElementById('avatar-letter').textContent = l;
+  document.getElementById('user-display-name').textContent = u.name;
+  document.getElementById('user-display-email').textContent = u.email;
+  document.getElementById('s-username').textContent = u.name;
+  document.getElementById('s-email').textContent = u.email;
+}
+
+// ═══════════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════════
+function setTheme(t) {
+  state.theme = t;
+  applyTheme(t);
+  saveState();
+}
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('theme-dark').classList.toggle('active', t==='dark');
+  document.getElementById('theme-light').classList.toggle('active', t==='light');
+}
+
+// ═══════════════════════════════════════════════════════════
+// LANGUAGE
+// ═══════════════════════════════════════════════════════════
+function setLang(l) {
+  state.lang = l;
+  applyLang(l);
+  saveState();
+}
+function applyLang(l) {
+  const t = i18n[l];
+  document.documentElement.setAttribute('data-lang', l);
+  document.querySelectorAll('[data-i]').forEach(el => {
+    const key = el.getAttribute('data-i');
+    if(t[key]) el.textContent = t[key];
+  });
+  document.getElementById('lang-su').classList.toggle('active', l==='su');
+  document.getElementById('lang-id').classList.toggle('active', l==='id');
+  document.getElementById('tab-login').textContent = t.tab_login;
+  document.getElementById('tab-register').textContent = t.tab_register;
+  document.getElementById('auth-tagline').textContent = l==='su'?'Kawih Sunda, Rasa Nu Sajati':'Kawih Sunda, Rasa yang Sesungguhnya';
+}
+
+function T(key) { return i18n[state.lang][key] || key; }
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const page = document.getElementById('page-'+p);
+  if(page) page.classList.add('active');
+  const nav = document.getElementById('nav-'+p);
+  if(nav) nav.classList.add('active');
+  if(p==='liked') renderLiked();
+  if(p==='playlists') renderMyPlaylists();
+  if(p==='downloaded') renderDownloaded();
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER HOME
+// ═══════════════════════════════════════════════════════════
+function renderHome() {
+  // Playlists
+  const pGrid = document.getElementById('home-playlists');
+  pGrid.innerHTML = DB.playlists.map(pl => `
+    <div class="card" onclick="openPlaylist('${pl.id}')">
+      <div class="card-thumb" style="background:linear-gradient(135deg,${pl.color}33,var(--bg4))">
+        <span style="font-size:2.5rem">${pl.cover}</span>
+        <div class="card-play-overlay"><i class="fas fa-play"></i></div>
+      </div>
+      <div class="card-title">${pl.name}</div>
+      <div class="card-sub">${pl.tracks.length} lagu</div>
+    </div>`).join('');
+
+  // Trending
+  const trending = ['t1','t8','t11','t15','t3','t16'].map(id=>DB.tracks[id]);
+  const tGrid = document.getElementById('home-trending');
+  tGrid.innerHTML = trending.map((t,i) => `
+    <div class="card" onclick="playTrackFromList('${t.id}',${JSON.stringify(trending.map(x=>x.id)).replace(/"/g,"'")})">
+      <div class="card-thumb">
+        <img src="${t.thumb}" onerror="this.style.display='none'">
+        <span style="position:absolute;font-size:2rem">${['🎶','🎵','💃','🌟','🎼','🎸'][i]}</span>
+        <div class="card-play-overlay"><i class="fas fa-play"></i></div>
+      </div>
+      <div class="card-title">${t.title}</div>
+      <div class="card-sub">${t.artist}</div>
+    </div>`).join('');
+
+  // Artists
+  const aGrid = document.getElementById('home-artists');
+  aGrid.innerHTML = DB.artists.map(a => `
+    <div class="card" onclick="openArtist('${a.id}')">
+      <div class="card-thumb" style="border-radius:50%">
+        <span style="font-size:2.5rem">${a.thumb}</span>
+        <div class="card-play-overlay" style="border-radius:50%"><i class="fas fa-play"></i></div>
+      </div>
+      <div class="card-title" style="text-align:center">${a.name}</div>
+      <div class="card-sub" style="text-align:center">${a.genre}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER SIDEBAR PLAYLISTS
+// ═══════════════════════════════════════════════════════════
+function renderSidebar() {
+  const el = document.getElementById('sidebar-playlists');
+  el.innerHTML = DB.playlists.slice(0,4).map(pl=>`
+    <div class="playlist-item" onclick="openPlaylist('${pl.id}')">
+      <div class="playlist-thumb">${pl.cover}</div>
+      <div>
+        <div style="font-size:.82rem;font-weight:500">${pl.name}</div>
+        <div style="font-size:.72rem;color:var(--text3)">${pl.tracks.length} lagu</div>
+      </div>
+    </div>`).join('') +
+  state.userPlaylists.map(pl=>`
+    <div class="playlist-item" onclick="openUserPlaylist('${pl.id}')">
+      <div class="playlist-thumb">🎵</div>
+      <div>
+        <div style="font-size:.82rem;font-weight:500">${pl.name}</div>
+        <div style="font-size:.72rem;color:var(--text3)">Playlist ku anjeun</div>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER SEARCH
+// ═══════════════════════════════════════════════════════════
+function renderSearch() {
+  // Genre chips
+  const chips = document.getElementById('genre-chips');
+  chips.innerHTML = ['Sadayana / Semua',...DB.categories.map(c=>c.name)].map((c,i)=>`
+    <div class="chip ${i===0?'active':''}" onclick="filterGenre(this,'${i===0?'all':DB.categories[i-1].id}')">${c}</div>`
+  ).join('');
+
+  // Browse cats
+  const cats = document.getElementById('browse-cats');
+  cats.innerHTML = DB.categories.map(c=>`
+    <div class="card" onclick="filterByCategory('${c.id}')" style="background:linear-gradient(135deg,${c.color}22,var(--bg2))">
+      <div class="card-thumb" style="background:${c.color}22;font-size:3rem">
+        <span>${c.emoji}</span>
+      </div>
+      <div class="card-title">${c.name}</div>
+    </div>`).join('');
+}
+
+function liveSearch(q) {
+  const el = document.getElementById('search-results');
+  if(!q.trim()) {
+    el.innerHTML = `
+      <div class="section-head"><div class="section-title" data-i="browse_cats">${T('browse_cats')}</div></div>
+      <div class="cards-grid" id="browse-cats"></div>`;
+    renderSearch();
+    return;
+  }
+  const q2 = q.toLowerCase();
+  const results = Object.values(DB.tracks).filter(t=>
+    t.title.toLowerCase().includes(q2) || t.artist.toLowerCase().includes(q2) || t.genre.toLowerCase().includes(q2)
+  );
+  const ids = results.map(t=>t.id);
+  el.innerHTML = `<div class="section-head"><div class="section-title">Hasil: ${results.length} lagu</div></div>` +
+    (results.length ? renderTrackList(results, ids) : `<div class="empty-state"><i class="fas fa-search"></i><p>Teu kapanggih 😔 Cobian deui kecap séjén</p></div>`);
+}
+
+function filterGenre(el, genre) {
+  document.querySelectorAll('#genre-chips .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  filterByCategory(genre);
+}
+
+function filterByCategory(genre) {
+  const results = genre==='all' ? Object.values(DB.tracks) :
+    Object.values(DB.tracks).filter(t=>t.genre===genre);
+  const ids = results.map(t=>t.id);
+  document.getElementById('search-results').innerHTML =
+    `<div class="section-head"><div class="section-title">${results.length} lagu</div></div>` +
+    renderTrackList(results, ids);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PLAYLIST VIEW
+// ═══════════════════════════════════════════════════════════
+function openPlaylist(id) {
+  const pl = DB.playlists.find(p=>p.id===id);
+  if(!pl) return;
+  currentPlaylist = pl;
+  showPlaylistView(pl, pl.tracks.map(id=>DB.tracks[id]).filter(Boolean));
+}
+
+function openArtist(id) {
+  const ar = DB.artists.find(a=>a.id===id);
+  if(!ar) return;
+  const fakepl = {id:ar.id, name:ar.name, type:'ARTIS', desc:ar.genre, cover:ar.thumb, color:'#e8a225', tracks:ar.tracks};
+  currentPlaylist = fakepl;
+  showPlaylistView(fakepl, ar.tracks.map(id=>DB.tracks[id]).filter(Boolean));
+}
+
+function openUserPlaylist(id) {
+  const pl = state.userPlaylists.find(p=>p.id===id);
+  if(!pl) return;
+  currentPlaylist = pl;
+  const tracks = (pl.tracks||[]).map(id=>DB.tracks[id]).filter(Boolean);
+  showPlaylistView(pl, tracks);
+}
+
+function showPlaylistView(pl, tracks) {
+  document.getElementById('pl-cover').innerHTML = `<span style="font-size:5rem">${pl.cover||'🎵'}</span>`;
+  document.getElementById('pl-type').textContent = pl.type||'PLAYLIST';
+  document.getElementById('pl-name').textContent = pl.name;
+  document.getElementById('pl-desc').textContent = pl.desc||'';
+  document.getElementById('pl-count').textContent = `${tracks.length} lagu`;
+  const ids = tracks.map(t=>t.id);
+  document.getElementById('playlist-tracks').innerHTML = renderTrackRows(tracks, ids);
+  showPage('playlist');
+}
+
+function renderTrackList(tracks, queue) {
+  return `<div class="track-list">${renderTrackRows(tracks, queue.map?queue:queue)}</div>`;
+}
+
+function renderTrackRows(tracks, ids) {
+  return tracks.map((t,i)=>`
+    <div class="track-row ${state.currentTrack?.id===t.id?'playing':''}" onclick="playTrackFromList('${t.id}',${JSON.stringify(ids)})">
+      <div class="track-num">${state.currentTrack?.id===t.id?'▶':i+1}</div>
+      <div class="track-info">
+        <div class="track-img">
+          <img src="${t.thumb}" onerror="this.style.display='none';this.parentElement.textContent='🎵'">
+        </div>
+        <div>
+          <div class="track-name">${t.title}</div>
+          <div class="track-artist">${t.artist}</div>
+        </div>
+      </div>
+      <div class="track-artist">${t.artist}</div>
+      <div class="track-actions">
+        <button class="track-like ${state.likedTracks.includes(t.id)?'liked':''}" onclick="event.stopPropagation();toggleLike('${t.id}',this)">
+          <i class="${state.likedTracks.includes(t.id)?'fas':'far'} fa-heart"></i>
+        </button>
+        <span class="track-dur">${t.dur}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// LIKED & DOWNLOADED
+// ═══════════════════════════════════════════════════════════
+function renderLiked() {
+  const el = document.getElementById('liked-tracks');
+  if(!state.likedTracks.length) {
+    el.innerHTML = `<div class="empty-state"><i class="fas fa-heart"></i><p>Tacan aya lagu anu dipikaresep</p></div>`;
+    return;
+  }
+  const tracks = state.likedTracks.map(id=>DB.tracks[id]).filter(Boolean);
+  el.innerHTML = renderTrackRows(tracks, state.likedTracks);
+}
+
+function renderMyPlaylists() {
+  const el = document.getElementById('my-playlists-grid');
+  const all = [...DB.playlists, ...state.userPlaylists.map(p=>({...p,cover:p.cover||'🎵',color:'#e8a225'}))];
+  el.innerHTML = all.map(pl=>`
+    <div class="card" onclick="${state.userPlaylists.find(p=>p.id===pl.id)?`openUserPlaylist('${pl.id}')`:`openPlaylist('${pl.id}')`}">
+      <div class="card-thumb" style="background:linear-gradient(135deg,${pl.color||'#e8a225'}33,var(--bg4))">
+        <span style="font-size:2.5rem">${pl.cover}</span>
+        <div class="card-play-overlay"><i class="fas fa-play"></i></div>
+      </div>
+      <div class="card-title">${pl.name}</div>
+      <div class="card-sub">${(pl.tracks||[]).length} lagu</div>
+    </div>`).join('');
+}
+
+function renderDownloaded() {
+  const el = document.getElementById('downloaded-list');
+  if(!state.downloads.length) {
+    el.innerHTML = `<div class="empty-state"><i class="fas fa-download"></i><p>Tacan aya lagu anu diunduh pikeun offline</p></div>`;
+    return;
+  }
+  const tracks = state.downloads.map(id=>DB.tracks[id]).filter(Boolean);
+  el.innerHTML = `<div class="track-head">
+    <div>#</div><div>${T('col_title')}</div><div>${T('col_artist')}</div><div>⏱</div>
+  </div>` + renderTrackRows(tracks, state.downloads);
+}
+
+// ═══════════════════════════════════════════════════════════
+// NEWS
+// ═══════════════════════════════════════════════════════════
+function renderNews() {
+  document.getElementById('news-grid').innerHTML = DB.news.map(n=>`
+    <div class="news-card" onclick="toast('Mangga buka: ${n.title}')">
+      <div class="news-img"><span>${n.emoji}</span></div>
+      <div class="news-body">
+        <div class="news-tag">${n.tag}</div>
+        <div class="news-title">${n.title}</div>
+        <div class="news-excerpt">${n.excerpt}</div>
+        <div class="news-date">📅 ${n.date}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// SETTINGS RENDER
+// ═══════════════════════════════════════════════════════════
+function renderSettings() { applyTheme(state.theme); applyLang(state.lang); }
+function updateDlSize() {
+  document.getElementById('dl-size-val').textContent = state.downloads.length + ' lagu disimpen';
+}
+function clearDownloads() {
+  state.downloads = [];
+  saveState();
+  updateDlSize();
+  toast(T('toast_dl_clear'));
+}
+
+// ═══════════════════════════════════════════════════════════
+// LIKE
+// ═══════════════════════════════════════════════════════════
+function toggleLike(id, btn) {
+  const idx = state.likedTracks.indexOf(id);
+  if(idx>-1) {
+    state.likedTracks.splice(idx,1);
+    if(btn){btn.innerHTML='<i class="far fa-heart"></i>';btn.classList.remove('liked');}
+    toast(T('toast_unliked'));
+  } else {
+    state.likedTracks.push(id);
+    if(btn){btn.innerHTML='<i class="fas fa-heart"></i>';btn.classList.add('liked');}
+    toast(T('toast_liked'));
+  }
+  saveState();
+  updateLikeBtn();
+}
+
+function toggleLikeCurrent() {
+  if(!state.currentTrack) return;
+  toggleLike(state.currentTrack.id, null);
+  updateLikeBtn();
+}
+
+function updateLikeBtn() {
+  const btn = document.getElementById('like-btn');
+  if(!state.currentTrack) return;
+  const liked = state.likedTracks.includes(state.currentTrack.id);
+  btn.innerHTML = `<i class="${liked?'fas':'far'} fa-heart"></i>`;
+  btn.classList.toggle('liked', liked);
+}
+
+// ═══════════════════════════════════════════════════════════
+// YOUTUBE PLAYER
+// ═══════════════════════════════════════════════════════════
+function loadYTApi() {
+  if(window.YT && window.YT.Player) { initYTPlayer(); return; }
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+}
+
+window.onYouTubeIframeAPIReady = function() {
+  ytPlayer = new YT.Player('yt-player', {
+    height:'1', width:'1',
+    playerVars: { autoplay:0, controls:0, rel:0, showinfo:0, modestbranding:1, origin:window.location.origin },
+    events: {
+      onReady: () => { ytReady = true; ytPlayer.setVolume(state.volume); },
+      onStateChange: onYTStateChange,
+      onError: onYTError,
+    }
+  });
+};
+
+function initYTPlayer() {
+  ytPlayer = new YT.Player('yt-player', {
+    height:'1', width:'1',
+    playerVars: { autoplay:0, controls:0, rel:0, showinfo:0 },
+    events: {
+      onReady: () => { ytReady = true; ytPlayer.setVolume(state.volume); },
+      onStateChange: onYTStateChange,
+      onError: onYTError,
+    }
+  });
+}
+
+function onYTStateChange(e) {
+  if(e.data === YT.PlayerState.PLAYING) {
+    state.isPlaying = true;
+    document.getElementById('main-play-btn').innerHTML = '<i class="fas fa-pause"></i>';
+    startProgress();
+  } else if(e.data === YT.PlayerState.PAUSED) {
+    state.isPlaying = false;
+    document.getElementById('main-play-btn').innerHTML = '<i class="fas fa-play"></i>';
+  } else if(e.data === YT.PlayerState.ENDED) {
+    if(state.repeat) { ytPlayer.seekTo(0); ytPlayer.playVideo(); }
+    else nextTrack();
+  }
+}
+
+function onYTError(e) {
+  toast('⚠️ Video teu bisa diputer. Cobian lagu séjén.');
+  nextTrack();
+}
+
+function startProgress() {
+  clearInterval(progressInterval);
+  progressInterval = setInterval(() => {
+    if(!ytPlayer || !ytReady) return;
+    const cur = ytPlayer.getCurrentTime()||0;
+    const dur = ytPlayer.getDuration()||0;
+    state.progress = cur; state.duration = dur;
+    if(dur>0) document.getElementById('progress-fill').style.width = (cur/dur*100)+'%';
+    document.getElementById('time-cur').textContent = formatTime(cur);
+    document.getElementById('time-total').textContent = formatTime(dur);
+  }, 500);
+}
+
+function formatTime(s) {
+  const m = Math.floor(s/60), sec = Math.floor(s%60);
+  return `${m}:${sec<10?'0':''}${sec}`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PLAYBACK
+// ═══════════════════════════════════════════════════════════
+function playTrackFromList(trackId, queueIds) {
+  const queue = (typeof queueIds === 'string' ? JSON.parse(queueIds.replace(/'/g,'"')) : queueIds);
+  state.currentQueue = queue;
+  state.queueIndex = queue.indexOf(trackId);
+  loadAndPlay(trackId);
+}
+
+function loadAndPlay(trackId) {
+  const track = DB.tracks[trackId];
+  if(!track) return;
+  state.currentTrack = track;
+  updatePlayerUI(track);
+  if(ytReady && ytPlayer) {
+    ytPlayer.loadVideoById(track.ytId);
+    ytPlayer.playVideo();
+  } else {
+    setTimeout(() => { if(ytReady && ytPlayer) { ytPlayer.loadVideoById(track.ytId); ytPlayer.playVideo(); } }, 1500);
+  }
+  updateLikeBtn();
+}
+
+function updatePlayerUI(track) {
+  document.getElementById('player-title').textContent = track.title;
+  document.getElementById('player-artist').textContent = track.artist;
+  const thumb = document.getElementById('player-thumb');
+  thumb.innerHTML = `<img src="${track.thumb}" onerror="this.parentElement.textContent='🎵'" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`;
+}
+
+function togglePlay() {
+  if(!ytReady || !ytPlayer) return;
+  if(state.isPlaying) ytPlayer.pauseVideo();
+  else ytPlayer.playVideo();
+}
+
+function nextTrack() {
+  if(!state.currentQueue.length) return;
+  if(state.shuffle) {
+    state.queueIndex = Math.floor(Math.random()*state.currentQueue.length);
+  } else {
+    state.queueIndex = (state.queueIndex+1)%state.currentQueue.length;
+  }
+  loadAndPlay(state.currentQueue[state.queueIndex]);
+}
+
+function prevTrack() {
+  if(!state.currentQueue.length) return;
+  if(ytPlayer && ytPlayer.getCurrentTime() > 3) { ytPlayer.seekTo(0); return; }
+  state.queueIndex = (state.queueIndex-1+state.currentQueue.length)%state.currentQueue.length;
+  loadAndPlay(state.currentQueue[state.queueIndex]);
+}
+
+function seekTo(e) {
+  if(!ytPlayer||!ytReady) return;
+  const bar = document.getElementById('progress-bar');
+  const r = bar.getBoundingClientRect();
+  const pct = (e.clientX-r.left)/r.width;
+  ytPlayer.seekTo(pct*(ytPlayer.getDuration()||0));
+}
+
+function setVolume(e) {
+  const bar = e.currentTarget;
+  const r = bar.getBoundingClientRect();
+  const pct = Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+  state.volume = Math.round(pct*100);
+  document.getElementById('vol-fill').style.width = state.volume+'%';
+  if(ytPlayer&&ytReady) ytPlayer.setVolume(state.volume);
+  document.getElementById('vol-icon').innerHTML = `<i class="fas fa-volume-${state.volume===0?'mute':state.volume<50?'down':'up'}"></i>`;
+}
+
+function toggleMute() {
+  state.muted = !state.muted;
+  if(ytPlayer&&ytReady) { if(state.muted) ytPlayer.mute(); else ytPlayer.unMute(); }
+  document.getElementById('vol-icon').innerHTML = `<i class="fas fa-volume-${state.muted?'mute':'up'}"></i>`;
+}
+
+function toggleShuffle() {
+  state.shuffle = !state.shuffle;
+  document.getElementById('btn-shuffle').classList.toggle('active', state.shuffle);
+}
+
+function toggleRepeat() {
+  state.repeat = !state.repeat;
+  document.getElementById('btn-repeat').classList.toggle('active', state.repeat);
+}
+
+function playFeatured() {
+  const queue = DB.playlists[0].tracks;
+  state.currentQueue = queue;
+  state.queueIndex = 0;
+  loadAndPlay(queue[0]);
+}
+
+function playPlaylist(pl) {
+  if(!pl) return;
+  const tracks = pl.tracks||[];
+  if(!tracks.length) return;
+  state.currentQueue = tracks;
+  state.queueIndex = 0;
+  loadAndPlay(tracks[0]);
+}
+
+function shufflePlaylist() {
+  if(!currentPlaylist?.tracks?.length) return;
+  state.shuffle = true;
+  document.getElementById('btn-shuffle').classList.add('active');
+  const tracks = [...currentPlaylist.tracks];
+  state.currentQueue = tracks;
+  state.queueIndex = Math.floor(Math.random()*tracks.length);
+  loadAndPlay(tracks[state.queueIndex]);
+}
+
+// ═══════════════════════════════════════════════════════════
+// DOWNLOAD
+// ═══════════════════════════════════════════════════════════
+function openDownloadModal() {
+  if(!state.currentTrack) return;
+  const t = state.currentTrack;
+  document.getElementById('dl-song-info').innerHTML = `<b>${t.title}</b><br><span style="color:var(--text2)">${t.artist}</span>`;
+  openModal('dl-modal');
+}
+
+function downloadYT() {
+  if(!state.currentTrack) return;
+  const url = `https://ytmp3.cc/en13/youtube-to-mp3/?url=https://youtube.com/watch?v=${state.currentTrack.ytId}`;
+  window.open(url, '_blank');
+  closeModal('dl-modal');
+}
+
+function saveOffline() {
+  if(!state.currentTrack) return;
+  const id = state.currentTrack.id;
+  if(!state.downloads.includes(id)) {
+    state.downloads.push(id);
+    saveState();
+    updateDlSize();
+    toast(T('toast_saved'));
+  } else {
+    toast('Geus disimpen saméméhna ✓');
+  }
+  closeModal('dl-modal');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PLAYLISTS
+// ═══════════════════════════════════════════════════════════
+function openCreatePlaylist() { openModal('create-pl-modal'); }
+
+function createPlaylist() {
+  const name = document.getElementById('pl-name-input').value.trim();
+  if(!name) return;
+  const pl = { id:'upl'+Date.now(), name, tracks:[], cover:'🎵', color:'#e8a225', desc:'Playlist ku anjeun', type:'PLAYLIST' };
+  state.userPlaylists.push(pl);
+  saveState();
+  renderSidebar();
+  renderMyPlaylists();
+  document.getElementById('pl-name-input').value = '';
+  closeModal('create-pl-modal');
+  toast(T('toast_pl_created'));
+}
+
+// ═══════════════════════════════════════════════════════════
+// LYRICS (placeholder)
+// ═══════════════════════════════════════════════════════════
+const lyricsDB = {
+  t1: `Mun kuring ngarasa sono\nKana lemah cai\nKana mojang Priangan\nNu gareulis mamanis\n\nBiwir mani ngageunah\nSeuri manis ngalenyap\nHati mah bungah naker\nNingali mojang Priangan`,
+  t3: `Manuk Dadali manuk utama\nLambang sakti Nusa Jawa\nManuk Dadali pangkaosna\nKasohor ka mana-mana\n\nWani bela bela nagara\nBirawa taya tandingna\nPandita ratu utama\nMamrih kamajuan bangsa`,
+  t4: `Bubuy bulan, bubuy bulan\nSangray béntang di langit\nAmbing-ambing, ambing-ambing\nJalan ka Bandung teuing\n\nBubuy bulan luhur gunung\nHaneutna pisan\nKumaha atuh si Akang\nNgantosan bieu`,
+};
+
+function openLyrics() {
+  if(!state.currentTrack) return;
+  const t = state.currentTrack;
+  document.getElementById('lyrics-title').textContent = `🎤 ${t.title} — ${t.artist}`;
+  const lyric = lyricsDB[t.id];
+  document.getElementById('lyrics-body').innerHTML = lyric ?
+    lyric.split('\n').map(l=>l?`<p>${l}</p>`:'<br>').join('') :
+    `<p style="color:var(--text3)">Lirik teu sayogi kanggo lagu ieu 😔</p>`;
+  openModal('lyrics-modal');
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODALS & TOAST
+// ═══════════════════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }));
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════
+(function boot() {
+  loadState();
+  applyTheme(state.theme);
+  const session = localStorage.getItem('kw_session');
+  if(session) {
+    state.user = JSON.parse(session);
+    enterApp();
+  } else {
+    applyLang(state.lang);
+  }
+})();
+</script>
+</body>
+</html>
